@@ -788,14 +788,16 @@
         /* Mobile Gallery Styles */
         .mobile-sticky-wrapper {
             position: relative;
-            height: 200vh; /* Provides vertical scroll space for sticky section */
+            height: 200vh;
+            /* Provides vertical scroll space for sticky section */
         }
 
         .mobile-gallery-section {
             padding: 20px 0 20px;
             background: #F0F5F5;
             position: sticky;
-            top: 70px; /* Header height offset */
+            top: 70px;
+            /* Header height offset */
             height: calc(100vh - 70px);
             min-height: calc(100vh - 70px);
             overflow: hidden;
@@ -833,11 +835,15 @@
         .mobile-gallery-container {
             width: 100%;
             overflow-x: auto;
+            overflow-y: hidden;
             scroll-snap-type: x mandatory;
             display: flex;
             gap: 30px;
             scrollbar-width: none;
             -ms-overflow-style: none;
+            flex: 1;
+            min-height: 0;
+            align-items: center;
         }
 
         .mobile-gallery-container::-webkit-scrollbar {
@@ -847,19 +853,28 @@
         .mobile-card-item {
             flex: 0 0 85%;
             scroll-snap-align: center;
-
+            height: 100%;
+            display: flex;
+            align-items: center;
         }
 
         .mobile-media-wrap {
             width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             overflow: hidden;
             position: relative;
         }
 
         .mobile-media-wrap img,
         .mobile-media-wrap video {
-            width: 100%;
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
             height: auto;
+            object-fit: contain;
             display: block;
             image-rendering: high-quality;
         }
@@ -872,7 +887,7 @@
             gap: 8px;
             margin-top: 0px;
             margin-bottom: 40px;
-            margin-right: 3.3rem;
+            margin-right: 14%;
             scale: 1.2;
         }
 
@@ -1674,7 +1689,7 @@
                     <div class="card-container">
                         <div class="card-text-side">
                             <h2 class="step-label">01</h2>
-                            <h3 class="step-title">כמה הבית באמת עולה לכם?</h3>
+                            <h3 class="step-title">כמה באמת עולה לכם הנכס?</h3>
                             <p class="step-description">הגדרת מחיר הנכס וההון העצמי הם הבסיס לכל התהליך. נתונים אלה
                                 מאפשרים לנו לחשב את אחוז המימון המדויק ולהבטיח שהמשכנתא שלכם עומדת בתקנות בנק ישראל
                                 ומותאמת ליכולות שלכם.</p>
@@ -1775,56 +1790,56 @@
     </section>
 
     <div class="mobile-sticky-wrapper mobile-only">
-    <div class="mobile-gallery-section mobile-only">
-        <div class="mobile-header-text">
-            <div class="step-number" id="m-step-num">01</div>
-            <h2 class="step-headline" id="m-step-head">כמה הבית באמת עולה לכם?</h2>
-            <p class="step-body" id="m-step-body">
-                הגדרת מחיר הנכס וההון העצמי הם הבסיס לכל התהליך. נתונים אלה מאפשרים לנו לחשב את אחוז המימון המדויק.
-            </p>
-        </div>
+        <div class="mobile-gallery-section mobile-only">
+            <div class="mobile-header-text">
+                <div class="step-number" id="m-step-num">01</div>
+                <h2 class="step-headline" id="m-step-head">כמה הבית באמת עולה לכם?</h2>
+                <p class="step-body" id="m-step-body">
+                    הגדרת מחיר הנכס וההון העצמי הם הבסיס לכל התהליך. נתונים אלה מאפשרים לנו לחשב את אחוז המימון המדויק.
+                </p>
+            </div>
 
-        <div class="mobile-nav-dots">
-            <div class="m-dot active"></div>
-            <div class="m-dot"></div>
-            <div class="m-dot"></div>
-            <div class="m-dot"></div>
-            <div class="m-dot"></div>
-        </div>
+            <div class="mobile-nav-dots">
+                <div class="m-dot active"></div>
+                <div class="m-dot"></div>
+                <div class="m-dot"></div>
+                <div class="m-dot"></div>
+                <div class="m-dot"></div>
+            </div>
 
-        <div class="mobile-gallery-container" id="mobileGallery">
-            <!-- Card 1 -->
-            <div class="mobile-card-item" style="padding-right: 26px;" data-index="0">
-                <div class="mobile-media-wrap">
-                    <video src="./vid+gif/מובייל_עלות ווהון עצמי.mp4" autoplay loop muted playsinline></video>
+            <div class="mobile-gallery-container" id="mobileGallery">
+                <!-- Card 1 -->
+                <div class="mobile-card-item" style="padding-right: 26px;" data-index="0">
+                    <div class="mobile-media-wrap">
+                        <video src="./vid+gif/מובייל_עלות ווהון עצמי.mp4" autoplay loop muted playsinline></video>
+                    </div>
                 </div>
-            </div>
-            <!-- Card 2 -->
-            <div class="mobile-card-item" data-index="1">
-                <div class="mobile-media-wrap">
-                    <img src="./img/2.webp" alt="">
+                <!-- Card 2 -->
+                <div class="mobile-card-item" data-index="1">
+                    <div class="mobile-media-wrap">
+                        <img src="./img/2.webp" alt="">
+                    </div>
                 </div>
-            </div>
-            <!-- Card 3 -->
-            <div class="mobile-card-item" data-index="2">
-                <div class="mobile-media-wrap">
-                    <img src="./img/3.webp" alt="">
+                <!-- Card 3 -->
+                <div class="mobile-card-item" data-index="2">
+                    <div class="mobile-media-wrap">
+                        <img src="./img/3.webp" alt="">
+                    </div>
                 </div>
-            </div>
-            <!-- Card 4 -->
-            <div class="mobile-card-item" data-index="3">
-                <div class="mobile-media-wrap">
-                    <img src="./img/3.webp" alt="">
+                <!-- Card 4 -->
+                <div class="mobile-card-item" data-index="3">
+                    <div class="mobile-media-wrap">
+                        <img src="./img/3.webp" alt="">
+                    </div>
                 </div>
-            </div>
-            <!-- Card 5 -->
-            <div class="mobile-card-item" data-index="4">
-                <div class="mobile-media-wrap" style="padding-left: 26px;">
-                    <img src="./img/2.webp" alt="">
+                <!-- Card 5 -->
+                <div class="mobile-card-item" data-index="4">
+                    <div class="mobile-media-wrap" style="padding-left: 26px;">
+                        <img src="./img/2.webp" alt="">
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
     </div><!-- end mobile-sticky-wrapper -->
 
     <div class="lp-wrapper">

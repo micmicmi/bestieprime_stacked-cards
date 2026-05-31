@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>שלבים למשכנתא - Split View</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <!-- GSAP & Plugins -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
+
+    <style>
+        :root {
+            --primary-red: #FF1D00;
+            --text-dark: #1A1A1A;
+            --text-muted: #666666;
+            --bg-light: #F0F5F5;
+            --card-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+            --transition-smooth: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        @font-face {
+            font-family: 'ploni';
+            src: url('font ploni/ploni-regular-aaa.otf') format('opentype');
+            font-weight: 400;
+        }
+
+        @font-face {
+            font-family: 'ploni';
+            src: url('font ploni/ploni-bold-aaa.otf') format('opentype');
+            font-weight: 700;
+        }
+
+        @font-face {
+            font-family: 'ploni';
+            src: url('font ploni/ploni-black-aaa.otf') format('opentype');
+            font-weight: 900;
+        }
+
+        body {
+            font-family: 'ploni', 'Heebo', sans-serif;
+            background-color: var(--bg-light);
+            margin: 0;
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        /* Visibility Helpers */
+        @media (min-width: 1025px) {
+            .mobile-only {
+                display: none !important;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .desktop-only {
+                display: none !important;
+            }
+        }
+
+        /* Hero / Header Section */
+        .header-section {
+            height: 40vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .section-title {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 300;
+            color: #000;
+            letter-spacing: -1px;
+        }
+
+        /* Split Layout Container */
+        .main-wrapper {
+            position: relative;
+            max-width: 1140px;
+            margin: 0 auto;
+            display: flex;
+            padding: 0;
+        }
+
+        /* Sticky Left Column */
+        .left-col {
+            flex: 1;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            z-index: 20;
+        }
+
+        @media (min-width: 1024px) {
+            .left-col {
+                max-width: 420px;
+            }
+        }
+
+        .text-container {
+            position: relative;
+            height: 400px;
+
+        }
+
+        @media (min-width: 1024px) {
+            .text-container {
+                max-width: 420px;
+            }
+        }
+
+        .text-content {
+            position: absolute;
+            top: 0;
+            right: 0;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(40px) scale(0.95);
+            transition: var(--transition-smooth);
+            text-align: right;
+            pointer-events: none;
+        }
+
+        .text-content.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .step-indicator {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #DADEE3;
+            transition: var(--transition-smooth);
+            cursor: pointer;
+        }
+
+        .dot.active {
+            background: var(--primary-red);
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        .step-number {
+            font-size: 56px;
+            font-weight: 900;
+            color: var(--primary-red);
+            line-height: 0.8;
+            margin-bottom: 1rem;
+            opacity: 0.15;
+            margin-bottom: 0;
+        }
+
+        @media (max-width: 768px) {
+            .step-number {
+                font-size: 36px;
+                margin-bottom: 5px !important;
+                opacity: 1;
+                color: #FF1D00;
+            }
+        }
+
+        .step-headline {
+            font-size: 33px;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            line-height: 1.1;
+            color: #000000;
+            letter-spacing: -0.4px;
+            margin-top: 24px;
+        }
+
+        .step-body {
+            font-size: 1.25rem;
+            line-height: 1.7;
+            color: var(--text-muted);
+            max-width: 500px;
+            letter-spacing: 0.4px;
+            margin-bottom: 0;
+        }
+
+        /* Scrolling Right Column */
+        .right-col {
+            flex: 1.2;
+        }
+
+        @media (min-width: 1024px) {
+            .right-col {
+                max-width: 630px;
+                margin: 0 auto;
+                flex: 1;
+            }
+        }
+
+        .image-section {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .media-box {
+            width: 100%;
+            max-width: 650px;
+            border-radius: 32px;
+            background: #fff;
+            box-shadow: var(--card-shadow);
+            transform: translateZ(0);
+            will-change: transform, opacity;
+        }
+
+        .media-box video,
+        .media-box img {
+            width: 100%;
+            height: auto;
+            border-radius: 22px;
+            display: block;
+            image-rendering: high-quality;
+            image-rendering: -webkit-optimize-contrast;
+        }
+
+        /* Mobile Gallery Styles */
+        .mobile-gallery-section {
+            padding: 60px 0 60px;
+            /* Equivalent to pt-24 (approximated) */
+            background: #F8FAFC;
+            min-height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (max-width: 1024px) {
+            .mobile-gallery-section {
+                padding-top: 60px;
+                /* Adjust for sticky header if needed */
+            }
+        }
+
+        .mobile-header-text {
+            padding: 0 24px;
+            text-align: right;
+            height: 180px;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-header-text .step-headline {
+                font-size: 26px;
+                margin-bottom: 5px !important;
+            }
+
+            .mobile-header-text .step-body {
+                font-size: 17px;
+                margin-top: 0;
+                line-height: 24px;
+            }
+        }
+
+        .mobile-gallery-container {
+            width: 100%;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            display: flex;
+            gap: 30px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .mobile-gallery-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .mobile-card-item {
+            flex: 0 0 85%;
+            scroll-snap-align: center;
+
+        }
+
+        .mobile-media-wrap {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .mobile-media-wrap img,
+        .mobile-media-wrap video {
+            width: 100%;
+            height: auto;
+            display: block;
+            image-rendering: high-quality;
+        }
+
+        .mobile-nav-dots {
+            display: flex;
+            justify-content: start;
+            gap: 10px;
+            margin-top: 0px;
+            margin-bottom: 40px;
+            margin-right: 24px;
+        }
+
+        .m-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #DADEE3;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .m-dot.active {
+            background: var(--primary-red);
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        .blur-bg {
+            position: fixed;
+            top: -10%;
+            left: -10%;
+            width: 120%;
+            height: 120%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Replaces Tailwind Utility Classes */
+        .w-full {
+            width: 100%;
+        }
+
+        .h-full {
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="blur-bg"></div>
+
+    <!-- Mobile View: Horizontal Gallery -->
+    <div class="mobile-gallery-section mobile-only">
+        <div class="mobile-header-text">
+            <div class="step-number" id="m-step-num">01</div>
+            <h2 class="step-headline" id="m-step-head">כמה הבית באמת עולה לכם?</h2>
+            <p class="step-body" id="m-step-body">
+                הגדרת מחיר הנכס וההון העצמי הם הבסיס לכל התהליך. נתונים אלה מאפשרים לנו לחשב את אחוז המימון המדויק.
+            </p>
+        </div>
+
+        <div class="mobile-nav-dots">
+            <div class="m-dot active"></div>
+            <div class="m-dot"></div>
+            <div class="m-dot"></div>
+            <div class="m-dot"></div>
+            <div class="m-dot"></div>
+        </div>
+
+        <div class="mobile-gallery-container" id="mobileGallery">
+            <!-- Card 1 -->
+            <div class="mobile-card-item" style="padding-right: 26px;" data-index="0">
+                <div class="mobile-media-wrap">
+                    <video src="./vid+gif/מובייל_עלות ווהון עצמי.m p4" autoplay loop muted playsinline></video>
+                </div>
+            </div>
+            <!-- Card 2 -->
+            <div class="mobile-card-item" data-index="1">
+                <div class="mobile-media-wrap">
+                    <img src="./img/2.webp" alt="">
+                </div>
+            </div>
+            <!-- Card 3 -->
+            <div class="mobile-card-item" data-index="2">
+                <div class="mobile-media-wrap">
+                    <img src="./img/3.webp" alt="">
+                </div>
+            </div>
+            <!-- Card 4 -->
+            <div class="mobile-card-item" data-index="3">
+                <div class="mobile-media-wrap">
+                    <img src="./img/3.webp" alt="">
+                </div>
+            </div>
+            <!-- Card 5 -->
+            <div class="mobile-card-item" data-index="4">
+                <div class="mobile-media-wrap" style="padding-left: 26px;">
+                    <img src="./img/3.webp" alt="">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Desktop View -->
+    <div class="main-wrapper desktop-only">
+        <!-- Left: Sticky Text -->
+        <div class="left-col">
+            <div class="step-indicator">
+                <div class="dot active"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+            <div class="text-container">
+                <!-- Step 1 -->
+                <div class="text-content active" id="text-1">
+                    <div class="step-number">01</div>
+                    <h2 class="step-headline">כמה הבית באמת עולה לכם?</h2>
+                    <p class="step-body">
+                        הגדרת מחיר הנכס וההון העצמי הם הבסיס לכל התהליך. נתונים אלה מאפשרים לנו לחשב את אחוז המימון
+                        המדויק
+                        ולהבטיח שהמשכנתא שלכם עומדת בתקנות בנק ישראל ומותאמת ליכולות שלכם.
+                    </p>
+                </div>
+                <!-- Step 2 -->
+                <div class="text-content" id="text-2">
+                    <div class="step-number">02</div>
+                    <h2 class="step-headline">מה לגבי ההוצאות הנוספות?</h2>
+                    <p class="step-body">
+                        עורך דין, שמאי, תיווך ומס רכישה – אלו עלויות שיכולות להגיע לעשרות אלפי שקלים. אנחנו מחשבים
+                        עבורכם את הכל מראש כדי שלא תופתעו ותדעו בדיוק כמה כסף נזיל אתם צריכים.
+                    </p>
+                </div>
+                <!-- Step 3 -->
+                <div class="text-content" id="text-3">
+                    <div class="step-number">03</div>
+                    <h2 class="step-headline">הפרופיל הפיננסי שלכם.</h2>
+                    <p class="step-body">
+                        נתוני השכר והיציבות התעסוקתית הם המפתח לקבלת ריביות מעולות. ככל שהמידע שתזינו יהיה מדויק יותר,
+                        כך נוכל להילחם עבורכם על תנאים מנצחים מול הבנקים השונים.
+                    </p>
+                </div>
+                <!-- Step 4 -->
+                <div class="text-content" id="text-4">
+                    <div class="step-number">04</div>
+                    <h2 class="step-headline">כמה נוח לכם לשלם בחודש?</h2>
+                    <p class="step-body">
+                        אנחנו מתאימים את המשכנתא לחיים שלכם, לא להיפך. הגדרת החזר חודשי ריאלי תבטיח שתעמדו בתשלומים
+                        בנוחות לאורך שנים ותשמרו על איכות החיים שאתם רגילים אליה.
+                    </p>
+                </div>
+                <!-- Step 5 -->
+                <div class="text-content" id="text-5">
+                    <div class="step-number">05</div>
+                    <h2 class="step-headline">המשכנתא המנצחת מוכנה!</h2>
+                    <p class="step-body">
+                        המערכת מציגה לכם 2-3 תמהילים אופטימליים לבחירה: מאוזן, יציב או חסכוני. לכל אחד יתרונות משלו, כך
+                        שתוכלו לבחור בביטחון את המסלול שהכי נכון למשפחה שלכם.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Scrolling Images -->
+        <div class="right-col">
+            <!-- Section 1 -->
+            <div class="image-section" data-index="0">
+                <div class="media-box">
+                    <video class="w-full h-full" autoplay muted loop playsinline src="./vid+gif/text.mp4"
+                        alt="Step 1 Desktop"
+                        onerror="this.src='https://placehold.co/800x600/f3f4f6/a1a1aa?text=Step+1'">
+                    </video>
+                </div>
+            </div>
+
+            <!-- Section 2 -->
+            <div class="image-section" data-index="1">
+                <div class="media-box">
+                    <video class="w-full h-full" autoplay muted loop playsinline src="./vid+gif/הוצאות נוספות.mp4"
+                        alt="Step 1 Desktop"
+                        onerror="this.src='https://placehold.co/800x600/f3f4f6/a1a1aa?text=Step+1'">
+                    </video>
+                </div>
+            </div>
+
+            <!-- Section 3 -->
+            <div class="image-section" data-index="2">
+                <div class="media-box">
+                    <video class="w-full h-full" autoplay muted loop playsinline src="vid+gif\.mp4פרטי הלווים-1.mp4"
+                        alt="Step 3 Desktop"
+                        onerror="this.src='https://placehold.co/800x600/f3f4f6/a1a1aa?text=Step+1'">
+                    </video>
+                </div>
+            </div>
+
+            <!-- Section 4 -->
+            <div class="image-section" data-index="3">
+                <div class="media-box">
+                    <video class="w-full h-full" autoplay muted loop playsinline src="vid+gif/החזר חודשי_ארוך.mp4"
+                        alt="Step 4 Desktop"
+                        onerror="this.src='https://placehold.co/800x600/f3f4f6/a1a1aa?text=Step+4'">
+                    </video>
+                </div>
+            </div>
+
+            <!-- Section 5 -->
+            <div class="image-section" data-index="4">
+                <div class="media-box">
+                    <img src="./img/דף תוצאות_2.png" alt="Step 5 Desktop"
+                        onerror="this.src='https://placehold.co/800x600/f3f4f6/a1a1aa?text=Step+5'">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Desktop Only Spacer -->
+    <div class="desktop-only" style="height: 40vh;"></div>
+
+    <script>
+        gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+
+        // --- Desktop Logic ---
+        const textContents = document.querySelectorAll('.text-content');
+        const dots = document.querySelectorAll('.dot');
+        const imageSections = document.querySelectorAll('.image-section');
+
+        function updateState(index) {
+            textContents.forEach((content, i) => {
+                content.classList.toggle('active', i === index);
+            });
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+        }
+
+        ScrollTrigger.matchMedia({
+            "(min-width: 1025px)": function () {
+                imageSections.forEach((section, index) => {
+                    const box = section.querySelector('.media-box');
+
+                    ScrollTrigger.create({
+                        trigger: section,
+                        start: "top center+=100",
+                        end: "bottom center+=100",
+                        onEnter: () => updateState(index),
+                        onEnterBack: () => updateState(index),
+                    });
+
+                    gsap.fromTo(box,
+                        {
+                            y: 80,
+                            scale: 0.9,
+                            opacity: 0.7,
+                            rotateY: index % 2 === 0 ? 5 : -5
+                        },
+                        {
+                            y: -80,
+                            scale: 1,
+                            opacity: 1,
+                            rotateY: 0,
+                            ease: "power1.out",
+                            scrollTrigger: {
+                                trigger: section,
+                                start: "top bottom",
+                                end: "bottom top",
+                                scrub: true
+                            }
+                        }
+                    );
+
+                    // Dot click navigation
+                    dots[index].addEventListener('click', () => {
+                        gsap.to(window, {
+                            scrollTo: section,
+                            duration: 1,
+                            ease: "power2.inOut"
+                        });
+                    });
+                });
+            }
+        });
+
+        // --- Mobile Gallery Logic ---
+        const mobileGallery = document.getElementById('mobileGallery');
+        const mDots = document.querySelectorAll('.m-dot');
+        const mStepNum = document.getElementById('m-step-num');
+        const mStepHead = document.getElementById('m-step-head');
+        const mStepBody = document.getElementById('m-step-body');
+
+        const mobileStepsData = [
+            {
+                num: "01",
+                head: "כמה הבית באמת עולה לכם?",
+                body: "הגדרת מחיר הנכס וההון העצמי הם הבסיס לכל התהליך. נתונים אלה מאפשרים לנו לחשב את אחוז המימון המדויק."
+            },
+            {
+                num: "02",
+                head: "מה לגבי ההוצאות הנוספות?",
+                body: "עורך דין, שמאי, תיווך ומס רכישה – אלו עלויות שיכולות להגיע לעשרות אלפי שקלים. אנחנו מחשבים עבורכם את הכל מראש."
+            },
+            {
+                num: "03",
+                head: "הפרופיל הפיננסי שלכם.",
+                body: "נתוני השכר והיציבות התעסוקתית הם המפתח לקבלת ריביות מעולות. ככל שהמידע שתזינו יהיה מדויק יותר, כך נוכל להילחם עבורכם."
+            },
+            {
+                num: "04",
+                head: "כמה נוח לכם לשלם בחודש?",
+                body: "אנחנו מתאימים את המשכנתא לחיים שלכם, לא להיפך. הגדרת החזר חודשי ריאלי תבטיח שתעמדו בתשלומים בנוחות."
+            },
+            {
+                num: "05",
+                head: "המשכנתא המנצחת מוכנה!",
+                body: "המערכת מציגה לכם  2-3 תמהילים אופטימליים לבחירה: מאוזן, יציב או חסכוני. לכל אחד יתרונות משלו."
+            }
+        ];
+
+        let currentActiveIndex = 0;
+
+        if (mobileGallery) {
+            mobileGallery.addEventListener('scroll', () => {
+                const cards = mobileGallery.querySelectorAll('.mobile-card-item');
+                let minDiff = Infinity;
+                let activeIdx = 0;
+
+                cards.forEach((card, i) => {
+                    const cardRect = card.getBoundingClientRect();
+                    const containerRect = mobileGallery.getBoundingClientRect();
+                    const cardCenter = cardRect.left + cardRect.width / 2;
+                    const containerCenter = containerRect.left + containerRect.width / 2;
+                    const diff = Math.abs(cardCenter - containerCenter);
+
+                    if (diff < minDiff) {
+                        minDiff = diff;
+                        activeIdx = i;
+                    }
+                });
+
+                if (activeIdx !== currentActiveIndex) {
+                    currentActiveIndex = activeIdx;
+                    updateMobileText(activeIdx);
+                }
+            });
+
+            // Mobile dot navigation
+            mDots.forEach((dot, index) => {
+                dot.addEventListener('click', () => {
+                    const cards = mobileGallery.querySelectorAll('.mobile-card-item');
+                    const targetCard = cards[index];
+                    if (targetCard) {
+                        mobileGallery.scrollTo({
+                            left: targetCard.offsetLeft - 24, // Adjust for padding
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        }
+
+        function updateMobileText(index) {
+            mDots.forEach((dot, i) => dot.classList.toggle('active', i === index));
+
+            gsap.to([mStepNum, mStepHead, mStepBody], {
+                opacity: 0,
+                y: 10,
+                duration: 0.2,
+                onComplete: () => {
+                    mStepNum.textContent = mobileStepsData[index].num;
+                    mStepHead.textContent = mobileStepsData[index].head;
+                    mStepBody.textContent = mobileStepsData[index].body;
+                    gsap.to([mStepNum, mStepHead, mStepBody], {
+                        opacity: 1,
+                        y: 0,
+                        duration: 0.3
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

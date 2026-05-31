@@ -786,11 +786,18 @@
         }
 
         /* Mobile Gallery Styles */
+        .mobile-sticky-wrapper {
+            position: relative;
+            height: 200vh; /* Provides vertical scroll space for sticky section */
+        }
+
         .mobile-gallery-section {
             padding: 20px 0 20px;
-            /* Equivalent to pt-24 (approximated) */
             background: #F0F5F5;
-            min-height: 100vh;
+            position: sticky;
+            top: 70px; /* Header height offset */
+            height: calc(100vh - 70px);
+            min-height: calc(100vh - 70px);
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -1767,6 +1774,7 @@
 
     </section>
 
+    <div class="mobile-sticky-wrapper mobile-only">
     <div class="mobile-gallery-section mobile-only">
         <div class="mobile-header-text">
             <div class="step-number" id="m-step-num">01</div>
@@ -1806,17 +1814,18 @@
             <!-- Card 4 -->
             <div class="mobile-card-item" data-index="3">
                 <div class="mobile-media-wrap">
-                    <img src="./img/4.png" alt="">
+                    <img src="./img/3.webp" alt="">
                 </div>
             </div>
             <!-- Card 5 -->
             <div class="mobile-card-item" data-index="4">
                 <div class="mobile-media-wrap" style="padding-left: 26px;">
-                    <img src="./img/דף תוצאות_2.png" alt="">
+                    <img src="./img/2.webp" alt="">
                 </div>
             </div>
         </div>
     </div>
+    </div><!-- end mobile-sticky-wrapper -->
 
     <div class="lp-wrapper">
         <div class="lp-container">

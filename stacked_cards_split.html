@@ -379,9 +379,9 @@
 
         <div class="mobile-gallery-container" id="mobileGallery">
             <!-- Card 1 -->
-            <div class="mobile-card-item" style="padding-right: 26px;" data-index="0">
+            <div class="mobile-card-item" data-index="0">
                 <div class="mobile-media-wrap">
-                    <video src="./vid+gif/מובייל_עלות ווהון עצמי.m p4" autoplay loop muted playsinline></video>
+                    <video src="./vid+gif/מובייל_עלות ווהון עצמי.mp4" autoplay loop muted playsinline></video>
                 </div>
             </div>
             <!-- Card 2 -->
@@ -404,7 +404,7 @@
             </div>
             <!-- Card 5 -->
             <div class="mobile-card-item" data-index="4">
-                <div class="mobile-media-wrap" style="padding-left: 26px;">
+                <div class="mobile-media-wrap">
                     <img src="./img/3.webp" alt="">
                 </div>
             </div>
@@ -627,12 +627,74 @@
         ];
 
         let currentActiveIndex = 0;
+        let isJumping = false;
+        let scrollTimeout;
 
         if (mobileGallery) {
+            // Setup dynamic cloning for infinite loop
+            const originalCards = Array.from(mobileGallery.querySelectorAll('.mobile-card-item'));
+            const numOriginals = originalCards.length;
+
+            if (numOriginals === 5) {
+                // Clone last 2 cards and prepend them
+                const cloneLast1 = originalCards[numOriginals - 1].cloneNode(true);
+                const cloneLast2 = originalCards[numOriginals - 2].cloneNode(true);
+                cloneLast1.classList.add('is-clone');
+                cloneLast2.classList.add('is-clone');
+
+                // Clone first 2 cards and append them
+                const cloneFirst1 = originalCards[0].cloneNode(true);
+                const cloneFirst2 = originalCards[1].cloneNode(true);
+                cloneFirst1.classList.add('is-clone');
+                cloneFirst2.classList.add('is-clone');
+
+                // Re-assemble in order: C4, C5, C1, C2, C3, C4, C5, C1, C2
+                mobileGallery.insertBefore(cloneLast1, mobileGallery.firstChild);
+                mobileGallery.insertBefore(cloneLast2, mobileGallery.firstChild);
+                mobileGallery.appendChild(cloneFirst1);
+                mobileGallery.appendChild(cloneFirst2);
+
+                // Play all videos in clones to ensure they are active
+                mobileGallery.querySelectorAll('video').forEach(video => {
+                    video.play().catch(() => {});
+                });
+            }
+
+            // Function to scroll to a specific DOM index
+            function scrollToIndex(domIndex, smooth = true) {
+                const cards = mobileGallery.querySelectorAll('.mobile-card-item');
+                const targetCard = cards[domIndex];
+                if (targetCard) {
+                    const containerRect = mobileGallery.getBoundingClientRect();
+                    const cardRect = targetCard.getBoundingClientRect();
+                    const cardCenter = cardRect.left + cardRect.width / 2;
+                    const containerCenter = containerRect.left + containerRect.width / 2;
+                    const targetScrollLeft = mobileGallery.scrollLeft + (cardCenter - containerCenter);
+
+                    mobileGallery.scrollTo({
+                        left: targetScrollLeft,
+                        behavior: smooth ? 'smooth' : 'auto'
+                    });
+                }
+            }
+
+            // Set initial position to first original card (index 2 in DOM)
+            // Call immediately and also when DOM / assets are fully loaded
+            scrollToIndex(2, false);
+            window.addEventListener('load', () => {
+                scrollToIndex(2, false);
+            });
+            setTimeout(() => {
+                scrollToIndex(2, false);
+            }, 50);
+
+            // Scroll listener
             mobileGallery.addEventListener('scroll', () => {
+                if (isJumping) return;
+
                 const cards = mobileGallery.querySelectorAll('.mobile-card-item');
                 let minDiff = Infinity;
-                let activeIdx = 0;
+                let activeIdx = 2;
 
                 cards.forEach((card, i) => {
                     const cardRect = card.getBoundingClientRect();
@@ -647,23 +709,81 @@
                     }
                 });
 
-                if (activeIdx !== currentActiveIndex) {
-                    currentActiveIndex = activeIdx;
-                    updateMobileText(activeIdx);
+                const activeDataIndex = parseInt(cards[activeIdx].getAttribute('data-index'), 10);
+
+                if (activeDataIndex !== currentActiveIndex && !isNaN(activeDataIndex)) {
+                    currentActiveIndex = activeDataIndex;
+                    updateMobileText(activeDataIndex);
                 }
+
+                // Debounce check for infinite jump
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(handleScrollEnd, 100);
             });
+
+            // Native scrollend event listener for faster response
+            mobileGallery.addEventListener('scrollend', () => {
+                clearTimeout(scrollTimeout);
+                handleScrollEnd();
+            });
+
+            function handleScrollEnd() {
+                if (isJumping) return;
+
+                const cards = mobileGallery.querySelectorAll('.mobile-card-item');
+                let minDiff = Infinity;
+                let activeIdx = 2;
+
+                cards.forEach((card, i) => {
+                    const cardRect = card.getBoundingClientRect();
+                    const containerRect = mobileGallery.getBoundingClientRect();
+                    const cardCenter = cardRect.left + cardRect.width / 2;
+                    const containerCenter = containerRect.left + containerRect.width / 2;
+                    const diff = Math.abs(cardCenter - containerCenter);
+
+                    if (diff < minDiff) {
+                        minDiff = diff;
+                        activeIdx = i;
+                    }
+                });
+
+                let targetDomIdx = -1;
+                // DOM order: [Clone C4 (0), Clone C5 (1), Orig C1 (2), Orig C2 (3), Orig C3 (4), Orig C4 (5), Orig C5 (6), Clone C1 (7), Clone C2 (8)]
+                if (activeIdx === 0) targetDomIdx = 5;      // Clone C4 -> Original C4
+                else if (activeIdx === 1) targetDomIdx = 6; // Clone C5 -> Original C5
+                else if (activeIdx === 7) targetDomIdx = 2; // Clone C1 -> Original C1
+                else if (activeIdx === 8) targetDomIdx = 3; // Clone C2 -> Original C2
+
+                if (targetDomIdx !== -1) {
+                    isJumping = true;
+                    mobileGallery.style.scrollSnapType = 'none';
+
+                    const targetCard = cards[targetDomIdx];
+                    const containerRect = mobileGallery.getBoundingClientRect();
+                    const cardRect = targetCard.getBoundingClientRect();
+                    const cardCenter = cardRect.left + cardRect.width / 2;
+                    const containerCenter = containerRect.left + containerRect.width / 2;
+                    const targetScrollLeft = mobileGallery.scrollLeft + (cardCenter - containerCenter);
+
+                    mobileGallery.scrollLeft = targetScrollLeft;
+
+                    // Force browser layout/reflow
+                    void mobileGallery.offsetWidth;
+
+                    // Re-enable scroll snap after repaint/layout updates
+                    requestAnimationFrame(() => {
+                        requestAnimationFrame(() => {
+                            mobileGallery.style.scrollSnapType = 'x mandatory';
+                            isJumping = false;
+                        });
+                    });
+                }
+            }
 
             // Mobile dot navigation
             mDots.forEach((dot, index) => {
                 dot.addEventListener('click', () => {
-                    const cards = mobileGallery.querySelectorAll('.mobile-card-item');
-                    const targetCard = cards[index];
-                    if (targetCard) {
-                        mobileGallery.scrollTo({
-                            left: targetCard.offsetLeft - 24, // Adjust for padding
-                            behavior: 'smooth'
-                        });
-                    }
+                    scrollToIndex(index + 2, true);
                 });
             });
         }
